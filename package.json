@@ -1,0 +1,21 @@
+{
+  "name": "my-hub-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UniBreakfast/my-hub-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/UniBreakfast/my-hub-app/issues"
+  },
+  "homepage": "https://github.com/UniBreakfast/my-hub-app#readme"
+}
