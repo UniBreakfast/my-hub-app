@@ -15,6 +15,7 @@ function reqHanler(req, resp) {
             html: 'text/html',
             json: 'application/json',
             css: 'text/css',
+            ico: 'image/x-icon',
             js: 'application/javascript',
           }[ext[1]] : ''
     if (ext) resp.setHeader('Content-Type', type)
