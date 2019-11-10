@@ -6,7 +6,7 @@ require('http').createServer(reqHanler).listen(port,
 
 function reqHanler(req, resp) {
   require('./reqhandler.js')(req, resp)
+
   if (!process.env.PORT) try {
-    delete require.cache[require.resolve('./reqhandler.js')]
-  } catch {}
+    delete require.cache[require.resolve('./reqhandler.js')] } catch {}
 }
