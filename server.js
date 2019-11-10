@@ -5,5 +5,8 @@ require('http').createServer(reqHanler).listen(port,
   ()=> console.log('Server started on port '+port))
 
 function reqHanler(req, resp) {
-  resp.end('You tried to reach '+req.url)
+  require('./reqhandler.js')(req, resp)
+  if (!process.env.PORT) try {
+    delete require.cache[require.resolve('./reqhandler.js')]
+  } catch {}
 }
