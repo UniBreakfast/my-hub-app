@@ -6,6 +6,7 @@ function reqHanler(req, resp) {
   let { url } = req
 
   if (url=='/') url = '/spamain.html'
+  if (url=='/favicon.ico' && !process.env.PORT) url = '/devicon.ico'
 
   fs.readFile('public'+url, (err, data)=> {
     if (err) return resp.end(url+' is unavailable')
