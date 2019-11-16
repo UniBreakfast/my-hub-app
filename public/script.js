@@ -19,30 +19,42 @@ Object.prototype.c = function(label) {
 }
 
 {
-  const arr = []; let ids = 1
+  const arr = [
+    {id: 11, option: 'Activities'},
+    {id: 12, option: 'Endeavors'},
+    {id: 30, option: 'Quests'}
+  ]
+  let ids = 1
   var crud = [
+    // create
     value => new Promise((resolve, reject)=> setTimeout(()=> {
-      if (Math.random()<.1) reject(new Error('unsuccessful'))
+      if (Math.random()<.3) reject(new Error('unsuccessful'))
       else {
         const id = ids++, record = {id, value}
         arr.push(record)
         resolve(record)
       }
     }, 700)),
+    // read
     ()=> new Promise((resolve, reject)=> setTimeout(()=> {
-      if (Math.random()<.1) reject(new Error('unsuccessful'))
+      if (Math.random()<.3) reject(new Error('unsuccessful'))
       else resolve(JSON.parse(JSON.stringify(arr)))
     }, 700)),
+    // update
     (id, value)=> new Promise((resolve, reject)=> setTimeout(()=> {
-      if (Math.random()<.1) reject(new Error('unsuccessful'))
+      if (Math.random()<.3) return reject(new Error('unsuccessful'))
       const record = arr.find(rec => rec.id == id)
-      if (record) resolve(JSON.parse(JSON.stringify(record)))
+      if (record) {
+        record.value = value
+        resolve(JSON.parse(JSON.stringify(record)))
+      }
       else reject(new Error('not found'))
     }, 700)),
+    // delete
     id => new Promise((resolve, reject)=> setTimeout(()=> {
-      if (Math.random()<.1) reject(new Error('unsuccessful'))
-      const record = arr.find(rec => rec.id == id)
-      if (record) resolve('done')
+      if (Math.random()<.3) return reject(new Error('unsuccessful'))
+      const record = arr.findIndex(rec => rec.id == id)
+      if (~record) resolve(JSON.parse(JSON.stringify(arr.splice(record, 1)[0])))
       else reject(new Error('not found'))
     }, 700))
   ]

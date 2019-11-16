@@ -5,8 +5,8 @@ import ComboBox from './Components/ComboBox.js'
 
 document.body.innerHTML += html`<h2>Added via JS</h2>`
 
-const [ cb1, cb2 ] =
-  [...document.querySelectorAll('.combo-select')].map(div => new ComboBox(div))
+const [ cb1, cb2 ] = [...document.querySelectorAll('.combo-select')].map(div =>
+  new ComboBox(div, crud))
 
 Object.defineProperty(Object.prototype, 'c', { get () {
   console.log(new Date().toLocaleTimeString(), this,
