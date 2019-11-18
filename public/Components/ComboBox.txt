@@ -12,25 +12,23 @@ ComboBox
         Remove button
         Add button
   Mechanics
-    Switch between control groups
-    Generate option list for select from array of id/value pairs
-      with or without "unselected' option
-    Storing an array of id/value pairs to regenerate an option list
-    Add id/value pair to that array
-    Remove id/value pair from that array
-    Update value in a pair found in that array by id
-    Add option to the list
-    Remove option from the list
-    Update option value in the list
-    Clear option list
-    Clear Input
-    Fill Input with id/value
-    Get id/value from the Input
-    Provide selected option id/value
-    Provide list option count
-    Sort option list (asc/desc, by id/value)
-    Sort stored array (...)
-    Programmatic select option by id
-    Programmatic unselect option
-    Check if option value is present in the list
-    Disable/enable save/edit/remove button
+    * Switch between control groups
+    * Storing an array of id/value pairs to regenerate an option list
+    * Check if id/value is present in cache
+    * Add id/value pair to that array
+    * Remove id/value pair from that array
+    * Update value in a pair found in that array by id
+    * Generate option list for select from array of id/value pairs with or without "unselected' option
+    * Check if option value is present in the list
+    * Add option to the list
+    * Remove option from the list
+    * Update option value in the list
+    * Clear option list
+    * Clear Input
+    * Fill Input with id/value
+    * Get id/value from the Input
+    * Provide selected option id/value
+    * Provide list option count as length
+    * Sort option list (asc/desc, by id/value)
+    * Sort stored array (...)
+    * Programmatic (un)select option by id

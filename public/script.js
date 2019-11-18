@@ -22,7 +22,7 @@ Object.prototype.c = function(label) {
   const arr = [
     {id: 11, option: 'Activities'},
     {id: 12, option: 'Endeavors'},
-    {id: 30, option: 'Quests'}
+    {id: 3, option: 'Quests'}
   ]
   let ids = 1
   var crud = [
