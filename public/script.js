@@ -34,7 +34,7 @@ Object.prototype.c = function(label) {
         arr.push(record)
         resolve(record)
       }
-    }, 700)),
+    }, 10000)),
     // read
     ()=> new Promise((resolve, reject)=> setTimeout(()=> {
       if (Math.random()<.3) reject(new Error('unsuccessful'))

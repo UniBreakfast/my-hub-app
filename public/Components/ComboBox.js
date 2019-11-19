@@ -5,6 +5,7 @@ const credom = (el,...props) => assign(d.createElement(el),...props)
 const jsonClone = obj => JSON.parse(JSON.stringify(obj))
 Element.prototype.qsel = d.qsel =
   function (sel, one) { return this[`querySelector${one?'':'All'}`](sel) }
+EventTarget.prototype.on = d.body.addEventListener
 
 const optionHTML = (id, str)=> `<option value=${id}>${str}</option>`
 
@@ -21,6 +22,7 @@ export default class ComboBox {
   switchTo(mode) { // 0 - select, 1 - input
     this.domel.qsel('.cs-input',1).classList[mode? 'add':'remove']('active')
     this.domel.qsel('.cs-select',1).classList[!mode? 'add':'remove']('active')
+    this[mode? 'input':'select'].focus()
   }
 
 
@@ -62,7 +64,7 @@ export default class ComboBox {
     this.select.innerHTML =
       records.reduce((html, {id, option}) => html+optionHTML(id, option),
         unselected? `<option value>... nothing selected ...</option>`:'')
-    this.select.dispatchEvent(new Event('change'))
+    this.toggleBtns()
     this.add.disabled = false
   }
 
@@ -88,9 +90,11 @@ export default class ComboBox {
     return [...this.select].some(option => option.text==opt)
   }
 
-  optionAdd({id, option}) {
-    if (this.optionIsPresent(option)) throw 'conflicting option'
-    this.select.add(credom('option', {value: id, text: option}))
+  optionAdd(text) {
+    if (this.optionIsPresent(text)) throw 'conflicting option'
+    const option = credom('option', {text, value:''})
+    this.select.add(option)
+    return option
   }
 
   optionRemove(id) {
@@ -103,46 +107,52 @@ export default class ComboBox {
 
   optionSelect(id='') { this.select.value = id }
 
-  cacheIt(records) { this.cache = jsonClone(records) }
-
-  cacheHas({id, option}) {
-    return this.cache.some(pair => pair.id==id || pair.option==option)
+  optionSelectNext() {
+    do this.select[(this.select.selectedIndex+1) % this.length].selected = true
+    while (this.select.selectedOptions[0].wip)
+    this.toggleBtns()
   }
 
-  cacheInclude({id, option}) {
-    if (this.cacheHas({id, option})) throw 'conflicting option'
-    this.cache.push({id, option})
+  optionSelected() {
+    const { value, text } = this.select.selectedOptions[0]
+    return {id: value, option: text}
   }
 
-  cacheExclude(id) {
-    this.cache.splice(this.cache.findIndex(pair => pair.id==id), 1)
-  }
+  // cacheIt(records) { this.cache = jsonClone(records) }
 
-  cacheUpdate(id, option) {
-    this.cache.find(pair => pair.id==id).option = option
-  }
+  // cacheHas({id, option}) {
+  //   return this.cache.some(pair => pair.id==id || pair.option==option)
+  // }
 
-  cacheSort(byOption, desc) {
-    const part = byOption? 'option':'id', dir = desc? -1 : 1,
-          allNums = this.cache.every(opt => opt[part]==Number(opt[part])),
-          sorter = allNums? (a,b)=> (a[part]-b[part])*dir
-            : (a,b)=> a[part]>b[part]? 1*dir: -1*dir
-    this.cache.sort(sorter)
-  }
+  // cacheInclude({id, option}) {
+  //   if (this.cacheHas({id, option})) throw 'conflicting option'
+  //   this.cache.push({id, option})
+  // }
 
-  inputClear() { this.input.id = this.input.value = '' }
+  // cacheExclude(id) {
+  //   this.cache.splice(this.cache.findIndex(pair => pair.id==id), 1)
+  // }
+
+  // cacheUpdate(id, option) {
+  //   this.cache.find(pair => pair.id==id).option = option
+  // }
+
+  // cacheSort(byOption, desc) {
+  //   const part = byOption? 'option':'id', dir = desc? -1 : 1,
+  //         allNums = this.cache.every(opt => opt[part]==Number(opt[part])),
+  //         sorter = allNums? (a,b)=> (a[part]-b[part])*dir
+  //           : (a,b)=> a[part]>b[part]? 1*dir: -1*dir
+  //   this.cache.sort(sorter)
+  // }
+
+  inputClear() { assign(this.input, {id:'', value:'', was:''}) }
 
   inputSet({id, option}) {
-    assign(this.input, {id, value: option})
+    assign(this.input, {id, value: option, was: option})
   }
 
   inputGet() {
     return {id: this.input.id, value: this.input.value}
-  }
-
-  selectedGet() {
-    const { value, text } = this.select.selectedOptions[0]
-    return {id: value, option: text}
   }
 
   render() {
@@ -179,8 +189,54 @@ export default class ComboBox {
   }
 
   assignHandlers() {
-    this.select.addEventListener('change', ()=> ['remove','edit'].map(btn =>
-      this[btn].disabled = this.select.value? false : true))
-    this.remove.addEventListener('click', ()=> {})
+    const { select, input, remove, edit, add, save, cancel,
+      create, update, delit, toggleBtns, toggleSave } = this
+    select.on('change', toggleBtns)
+    remove.on('click', ()=> {
+      const option = select.selectedOptions[0]
+      option.wip = true
+      option.style.display = 'none'
+      this.optionSelectNext()
+      delit(option.value).then(it => this.optionRemove(it.id))
+        .catch(err => { c(err)
+          if (err.message == 'not found') this.refresh()
+          else delete option.wip, option.style.display = null
+        })
+    })
+    edit.on('click', ()=> {
+      this.switchTo(1)
+      this.inputSet(this.optionSelected())
+      toggleSave()
+    })
+    input.on('input', toggleSave)
+    input.on('keydown', e => e.key=='Enter'? save.click():0)
+    save.on('click', ()=> {
+      if (input.id) {
+        const option = select.selectedOptions[0]
+        option.wip = true
+        let { was } = input
+        option.text = input.value
+        update(input.id, input.value).catch(err => (c(err), option.text = was))
+          .finally(()=> (delete option.wip, toggleBtns()))
+      } else {
+        const option = this.optionAdd(input.value)
+        option.wip = true
+        create(input.value).then(record => option.value = record.id)
+          .catch(err => c(err) || option.remove())
+          .finally(()=> (delete option.wip, toggleBtns()))
+      }
+      toggleBtns()
+      this.switchTo()
+    })
+    add.on('click', ()=> { this.switchTo(1), this.inputClear(), toggleSave() })
+    cancel.onclick =()=> this.switchTo()
   }
+
+  toggleBtns =()=> {
+    const disabled = !this.select.value ||
+      this.select.selectedOptions[0].wip? true : false
+    !['remove','edit'].map(btn => assign(this[btn], {disabled}))
+  }
+
+  toggleSave =()=> this.save.disabled = this.optionIsPresent(this.input.value)
 }
