@@ -63,6 +63,7 @@ export default class ComboBox {
       records.reduce((html, {id, option}) => html+optionHTML(id, option),
         unselected? `<option value>... nothing selected ...</option>`:'')
     this.select.dispatchEvent(new Event('change'))
+    this.add.disabled = false
   }
 
   optionsClear() {
@@ -150,14 +151,15 @@ export default class ComboBox {
     const [ save, cancel, remove, edit, add ] =
       ['Save', 'Cancel', 'Remove', 'Edit', 'Add']
         .map(innerText => credom('button', {innerText}))
-    !['Volvo','Saab','Mercedes','Audi'].forEach(value =>
-      select.append(credom('option', {value, innerText:value})))
+    // !['Volvo','Saab','Mercedes','Audi'].forEach(value =>
+    //   select.append(credom('option', {value, innerText:value})))
     ![[div1, input, ' ', save, ' ', cancel],
       [div2, select,' ', remove,' ', edit,' ', add], [this.domel, div1, div2]]
         .forEach(([domel,...kids])=> domel.append(...kids))
     // ![[cancel,'toggle'],[add,'add'],[edit,'edit']]
     //   .map(([btn, method]) => btn.onclick = this[method])
     div2.classList.add('active')
+    ![remove, edit, add].map(btn => btn.disabled = true)
     assign(this, {input, select, add, edit, remove, save, cancel})
   }
 
