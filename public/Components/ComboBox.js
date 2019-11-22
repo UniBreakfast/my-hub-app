@@ -1,4 +1,5 @@
-const html = raw => raw[0], css = html
+const tl = (parts,...ins)=> parts.reduce((str, part, i)=> str+ins[i-1]+part),
+      css = tl, html = tl
 const d = document
 const { assign } = Object, c = console.log
 const credom = (el,...props) => assign(d.createElement(el),...props)
@@ -13,7 +14,7 @@ export default class ComboBox {
 
   constructor (domel, crud) {
     this.domel = domel
-    this.render()
+    this.buildDOM()
     this.styleUp()
     if (crud) this.crudUp(crud)
     this.assignHandlers()
@@ -24,30 +25,6 @@ export default class ComboBox {
     this.domel.qsel('.cs-select',1).classList[!mode? 'add':'remove']('active')
     this[mode? 'input':'select'].focus()
   }
-
-
-
-  // add =()=> assign(this.input, {id: '', value: ''}) && this.toggle()
-
-  // edit =()=> {
-  //   const { input, select, toggle } = this
-  //   assign(input,
-  //     {id: select.value, value: select.options[select.selectedIndex].text})
-  //   toggle()
-  // }
-
-  // toggle =()=>
-  //   this.domel.qsel('div').forEach(div => div.classList.toggle('active'))
-
-  // save =()=> {
-  //   const { input, select } = this
-  //   if (!input.value.trim()) return
-  //   if (input.id) {
-  //     this.update(input.id, input.value).then(record => {
-  //       this.records.push(record)
-  //     })
-  //   }
-  // }
 
   crudUp([create, read, update, delit]) {
     assign(this, {create, read, update, delit})
@@ -118,33 +95,6 @@ export default class ComboBox {
     return {id: value, option: text}
   }
 
-  // cacheIt(records) { this.cache = jsonClone(records) }
-
-  // cacheHas({id, option}) {
-  //   return this.cache.some(pair => pair.id==id || pair.option==option)
-  // }
-
-  // cacheInclude({id, option}) {
-  //   if (this.cacheHas({id, option})) throw 'conflicting option'
-  //   this.cache.push({id, option})
-  // }
-
-  // cacheExclude(id) {
-  //   this.cache.splice(this.cache.findIndex(pair => pair.id==id), 1)
-  // }
-
-  // cacheUpdate(id, option) {
-  //   this.cache.find(pair => pair.id==id).option = option
-  // }
-
-  // cacheSort(byOption, desc) {
-  //   const part = byOption? 'option':'id', dir = desc? -1 : 1,
-  //         allNums = this.cache.every(opt => opt[part]==Number(opt[part])),
-  //         sorter = allNums? (a,b)=> (a[part]-b[part])*dir
-  //           : (a,b)=> a[part]>b[part]? 1*dir: -1*dir
-  //   this.cache.sort(sorter)
-  // }
-
   inputClear() { assign(this.input, {id:'', value:'', was:''}) }
 
   inputSet({id, option}) {
@@ -155,19 +105,15 @@ export default class ComboBox {
     return {id: this.input.id, value: this.input.value}
   }
 
-  render() {
+  buildDOM() {
     const [ [ div1, input ], [ div2, select ] ] = ['input', 'select']
       .map(tag => [credom('div', {className: 'cs-'+tag}), credom(tag)])
     const [ save, cancel, remove, edit, add ] =
       ['Save', 'Cancel', 'Remove', 'Edit', 'Add']
         .map(innerText => credom('button', {innerText}))
-    // !['Volvo','Saab','Mercedes','Audi'].forEach(value =>
-    //   select.append(credom('option', {value, innerText:value})))
     ![[div1, input, ' ', save, ' ', cancel],
       [div2, select,' ', remove,' ', edit,' ', add], [this.domel, div1, div2]]
         .forEach(([domel,...kids])=> domel.append(...kids))
-    // ![[cancel,'toggle'],[add,'add'],[edit,'edit']]
-    //   .map(([btn, method]) => btn.onclick = this[method])
     div2.classList.add('active')
     ![remove, edit, add].map(btn => btn.disabled = true)
     assign(this, {input, select, add, edit, remove, save, cancel})
@@ -191,7 +137,9 @@ export default class ComboBox {
   assignHandlers() {
     const { select, input, remove, edit, add, save, cancel,
       create, update, delit, toggleBtns, toggleSave } = this
+
     select.on('change', toggleBtns)
+
     remove.on('click', ()=> {
       const option = select.selectedOptions[0]
       option.wip = true
@@ -203,13 +151,17 @@ export default class ComboBox {
           else delete option.wip, option.style.display = null
         })
     })
+
     edit.on('click', ()=> {
       this.switchTo(1)
       this.inputSet(this.optionSelected())
       toggleSave()
     })
+
     input.on('input', toggleSave)
+
     input.on('keydown', e => e.key=='Enter'? save.click():0)
+
     save.on('click', ()=> {
       if (input.id) {
         const option = select.selectedOptions[0]
@@ -228,7 +180,9 @@ export default class ComboBox {
       toggleBtns()
       this.switchTo()
     })
+
     add.on('click', ()=> { this.switchTo(1), this.inputClear(), toggleSave() })
+
     cancel.onclick =()=> this.switchTo()
   }
 

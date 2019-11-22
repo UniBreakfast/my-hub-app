@@ -20,11 +20,11 @@ Object.prototype.c = function(label) {
 
 {
   const arr = [
-    {id: 11, option: 'Activities'},
-    {id: 12, option: 'Endeavors'},
+    {id: 1, option: 'Activities'},
+    {id: 2, option: 'Endeavors'},
     {id: 3, option: 'Quests'}
   ]
-  let ids = 1
+  let ids = 4
   var crud = [
     // create
     value => new Promise((resolve, reject)=> setTimeout(()=> {
@@ -34,7 +34,7 @@ Object.prototype.c = function(label) {
         arr.push(record)
         resolve(record)
       }
-    }, 10000)),
+    }, 700)),
     // read
     ()=> new Promise((resolve, reject)=> setTimeout(()=> {
       if (Math.random()<.3) reject(new Error('unsuccessful'))
