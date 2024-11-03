@@ -1,4 +1,5 @@
-# my-hub-app
+# [my-hub-app](https://github.com/UniBreakfast/my-hub-app)
+
 ## Node.js server with request handler hot reload, page with ComboBox component
 
 `ComboBox` provides a `select` element with buttons to add, edit or remove options.
